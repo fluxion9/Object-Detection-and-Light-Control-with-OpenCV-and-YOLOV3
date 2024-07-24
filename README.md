@@ -23,12 +23,12 @@ When it comes to object detection, popular detection frameworks are
  
  Provided all the files are in the current directory, below command will apply object detection on the input image `group.jpg`.
  
- `$ python3 yolo_opencv.py --image group.jpg
+ `$ python3 yolo_opencv.py --image group.jpg`
  
  
  **Command format** 
  
- _$ python3 yolo_opencv.py --image /path/to/input/image
+ `$ python3 yolo_opencv.py --image /path/to/input/image`
  
  
  ### sample output :
