@@ -14,9 +14,9 @@ with open('yolov3.txt', 'r') as f:
 
 COLORS = np.random.uniform(0, 255, size=(len(classes), 3))
 
-# net = cv2.dnn.readNet('yolov3.weights', 'yolov3.cfg')
+net = cv2.dnn.readNet('yolov3.weights', 'yolov3.cfg')
 
-net = cv2.dnn.readNet('yolov3-tiny.weights', 'yolov3-tiny.cfg')
+# net = cv2.dnn.readNet('yolov3-tiny.weights', 'yolov3-tiny.cfg')
 
 def get_output_layers(net):
     
