@@ -100,14 +100,14 @@ for i in indices:
     # print(classes[class_ids[i]], round(confidences[i]*100.0, 0))
     objects.append(classes[class_ids[i]])
     accuracy.append(round(confidences[i]*100.0, 0))
-    draw_prediction(image, class_ids[i], confidences[i], round(x), round(y), round(x+w), round(y+h))
+    # draw_prediction(image, class_ids[i], confidences[i], round(x), round(y), round(x+w), round(y+h))
 
 # print(objects)
 # print(accuracy)
 
 # cv2.imshow("object detection", image)
 # cv2.waitKey()
-cv2.imwrite("object-detection.jpg", image)
+# cv2.imwrite("object-detection.jpg", image)
 # cv2.destroyAllWindows()
 
 summary = Summary(objects)
