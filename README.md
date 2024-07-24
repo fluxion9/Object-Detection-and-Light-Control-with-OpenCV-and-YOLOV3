@@ -20,6 +20,12 @@ When it comes to object detection, popular detection frameworks are
  Download the pre-trained YOLO v3 weights file from this [link](https://pjreddie.com/media/files/yolov3.weights) and place it in the current directory or you can directly download to the current directory in terminal using
  
  `$ wget https://pjreddie.com/media/files/yolov3.weights`
+
+ ## OR
+
+ `wget https://pjreddie.com/media/files/yolov3-tiny.weights`
+
+ For Constrained Environments
  
  Provided all the files are in the current directory, below command will apply object detection on the input image `group.jpg`.
  
@@ -31,7 +37,6 @@ When it comes to object detection, popular detection frameworks are
  `$ python3 yolo_opencv.py --image /path/to/input/image`
  
  
- ### sample output :
+ ### Sample Output :
  ![output](object-detection.jpg)
  
-Checkout the object detection implementation available in [cvlib](http:cvlib.net) which enables detecting common objects in the context through a single function call `detect_common_objects()`.
