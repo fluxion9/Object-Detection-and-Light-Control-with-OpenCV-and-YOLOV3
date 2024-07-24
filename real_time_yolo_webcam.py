@@ -2,12 +2,26 @@ import cv2
 import numpy as np
 
 # Load Yolo
-net = cv2.dnn.readNet("weights/yolov3.weights", "cfg/yolov3.cfg")
+net = cv2.dnn.readNet("yolov3.weights", "yolov3.cfg")
 classes = []
-with open("coco.names", "r") as f:
+with open("yolov3.txt", "r") as f:
     classes = [line.strip() for line in f.readlines()]
 layer_names = net.getLayerNames()
-output_layers = [layer_names[i[0] - 1] for i in net.getUnconnectedOutLayers()]
+
+
+# output_layers = [layer_names[i[0] - 1] for i in net.getUnconnectedOutLayers()]
+
+def get_output_layers(net):
+    
+    layer_names = net.getLayerNames()
+    try:
+        output_layers = [layer_names[i - 1] for i in net.getUnconnectedOutLayers()]
+    except:
+        output_layers = [layer_names[i[0] - 1] for i in net.getUnconnectedOutLayers()]
+
+    return output_layers
+
+
 colors = np.random.uniform(0, 255, size=(len(classes), 3))
 
 # Loading image
@@ -19,7 +33,9 @@ height, width, channels = img.shape
 blob = cv2.dnn.blobFromImage(img, 0.00392, (416, 416), (0, 0, 0), True, crop=False)
 
 net.setInput(blob)
-outs = net.forward(output_layers)
+
+# outs = net.forward(output_layers)
+outs = net.forward(get_output_layers(net))
 
 # Showing informations on the screen
 class_ids = []

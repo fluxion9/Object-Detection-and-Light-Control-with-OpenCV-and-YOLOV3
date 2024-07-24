@@ -29,6 +29,15 @@ def get_output_layers(net):
 
     return output_layers
 
+def Summary(inp):
+    objects = set(inp)
+    keys = []
+    vals = []
+    for obj in objects:
+        keys.append(obj)
+        vals.append(inp.count(obj))
+    return dict(zip(keys, vals))
+
 # Loading image
 # cap = cv2.VideoCapture("uk.mp4")
 cap = cv2.VideoCapture(args.video)
@@ -78,15 +87,21 @@ while True:
 
     indexes = cv2.dnn.NMSBoxes(boxes, confidences, 0.4, 0.3)
 
+    objects = []
+    accuracy = []
+
     for i in range(len(boxes)):
         if i in indexes:
             x, y, w, h = boxes[i]
             label = str(classes[class_ids[i]])
             confidence = confidences[i]
+            objects.append(classes[class_ids[i]])
+            accuracy.append(round(confidences[i]*100.0, 0))
             color = colors[class_ids[i]]
             cv2.rectangle(frame, (x, y), (x + w, y + h), color, 2)
             cv2.putText(frame, label + " " + str(round(confidence, 2)), (x, y + 30), font, 2, color, 2)
-
+    
+    print(Summary(objects))
 
 
     elapsed_time = time.time() - starting_time
