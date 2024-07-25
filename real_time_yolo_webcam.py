@@ -2,7 +2,10 @@ import cv2
 import numpy as np
 import time
 
-net = cv2.dnn.readNet("yolov3-tiny.weights", "yolov3-tiny.cfg")
+# net = cv2.dnn.readNet("yolov3-tiny.weights", "yolov3-tiny.cfg")
+
+net = cv2.dnn.readNet('yolov3.weights', 'yolov3.cfg')
+
 classes = []
 with open("yolov3.txt", "r") as f:
     classes = [line.strip() for line in f.readlines()]
@@ -62,7 +65,8 @@ while True:
             scores = detection[5:]
             class_id = np.argmax(scores)
             confidence = scores[class_id]
-            if confidence > 0.2:
+            # if confidence > 0.2:
+            if confidence > 0.5:
                 # Object detected
                 center_x = int(detection[0] * width)
                 center_y = int(detection[1] * height)
@@ -77,7 +81,9 @@ while True:
                 confidences.append(float(confidence))
                 class_ids.append(class_id)
 
+    # indexes = cv2.dnn.NMSBoxes(boxes, confidences, 0.3, 0.3)
     indexes = cv2.dnn.NMSBoxes(boxes, confidences, 0.3, 0.3)
+
 
     objects = []
     accuracy = []
