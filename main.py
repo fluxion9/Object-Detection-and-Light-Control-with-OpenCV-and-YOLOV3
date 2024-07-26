@@ -1,17 +1,39 @@
 import cv2
 import numpy as np
+import argparse
 import time
+import requests
+
+cam_url = 'http://192.168.43.231/cam-hi.jpg'
+
+ap = argparse.ArgumentParser()
+ap.add_argument('-c', '--use_webcam', required=False,
+                help = 'use built-in camera feed')
+ap.add_argument('-o', '--show', required=False,
+                help = 'show output and boxes')
+args = ap.parse_args()
 
 # net = cv2.dnn.readNet("yolov3-tiny.weights", "yolov3-tiny.cfg")
 
 net = cv2.dnn.readNet('yolov3.weights', 'yolov3.cfg')
 
 classes = []
+
 with open("yolov3.txt", "r") as f:
     classes = [line.strip() for line in f.readlines()]
 layer_names = net.getLayerNames()
 
 colors = np.random.uniform(0, 255, size=(len(classes), 3))
+
+def draw_prediction(img, class_id, confidence, x, y, x_plus_w, y_plus_h):
+
+    label = str(classes[class_id])
+
+    color = colors[class_id]
+
+    cv2.rectangle(img, (x,y), (x_plus_w,y_plus_h), color, 2)
+
+    cv2.putText(img, label, (x-10,y-10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
 
 def get_output_layers(net):
     
@@ -32,17 +54,30 @@ def Summary(inp):
         vals.append(inp.count(obj))
     return dict(zip(keys, vals))
 
-
-cap = cv2.VideoCapture(0)
+if args.use_webcam == 'true':
+    src, option = cv2.VideoCapture(0), True
+else:
+    src, option = cam_url, False
 
 font = cv2.FONT_HERSHEY_PLAIN
 starting_time = time.time()
 frame_id = 0
-while True:
-    _, frame = cap.read()
-    frame_id += 1
 
-    height, width, channels = frame.shape
+while True:
+    if option:
+        _, frame = src.read()
+        frame_id += 1
+        height, width, channels = frame.shape
+    else:
+        try:
+            response = requests.get(src)
+            frame_id += 1
+            image_array = np.asarray(bytearray(response.content), dtype=np.uint8)
+            frame = cv2.imdecode(image_array, cv2.IMREAD_COLOR)
+            height, width = frame.shape[:2]
+        except requests.exceptions.RequestException as e:
+            print("No Camera or Valid Frame Found")
+            continue
 
     # Detecting objects
     blob = cv2.dnn.blobFromImage(frame, 0.00392, (416, 416), (0, 0, 0), True, crop=False)
@@ -84,27 +119,33 @@ while True:
     objects = []
     accuracy = []
 
-    for i in range(len(boxes)):
-        if i in indexes:
-            x, y, w, h = boxes[i]
-            label = str(classes[class_ids[i]])
-            confidence = confidences[i]
-            objects.append(classes[class_ids[i]])
-            accuracy.append(round(confidences[i]*100.0, 0))
-            color = colors[class_ids[i]]
-            cv2.rectangle(frame, (x, y), (x + w, y + h), color, 2)
-            cv2.putText(frame, label + " " + str(round(confidence, 2)), (x, y + 30), font, 2, color, 2)
+    for i in indexes:
+        try:
+            box = boxes[i]
+        except:
+            i = i[0]
+            box = boxes[i]
+        x = box[0]
+        y = box[1]
+        w = box[2]
+        h = box[3]
+        # print(classes[class_ids[i]], round(confidences[i]*100.0, 0))
+        objects.append(classes[class_ids[i]])
+        accuracy.append(round(confidences[i]*100.0, 0))
+        if args.show == 'true':
+            draw_prediction(frame, class_ids[i], confidences[i], round(x), round(y), round(x+w), round(y+h))
+    
     
     print(Summary(objects))
 
-
     elapsed_time = time.time() - starting_time
     fps = frame_id / elapsed_time
-    cv2.putText(frame, "FPS: " + str(round(fps, 2)), (10, 50), font, 2, (0, 0, 0), 3)
-    cv2.imshow("Image", frame)
-    key = cv2.waitKey(1)
-    if key == 27:
-        break
-
-cap.release()
+    if args.show == 'true':
+        cv2.putText(frame, "FPS: " + str(round(fps, 2)), (10, 50), font, 2, (0, 0, 0), 3)
+        cv2.imshow("Feed", frame)
+        key = cv2.waitKey(1)
+        if key == 27:
+            break
+if option:
+    src.release()
 cv2.destroyAllWindows()
