@@ -1,13 +1,10 @@
 import cv2
 import numpy as np
 import time
-import requests
-
-url = 'http://192.168.43.231/cam-hi.jpg'
-
-net = cv2.dnn.readNet("yolov3.weights", "yolov3.cfg")
 
 # net = cv2.dnn.readNet("yolov3-tiny.weights", "yolov3-tiny.cfg")
+
+net = cv2.dnn.readNet('yolov3.weights', 'yolov3.cfg')
 
 classes = []
 with open("yolov3.txt", "r") as f:
@@ -36,25 +33,16 @@ def Summary(inp):
     return dict(zip(keys, vals))
 
 
+cap = cv2.VideoCapture(0)
+
 font = cv2.FONT_HERSHEY_PLAIN
-
 starting_time = time.time()
-
 frame_id = 0
-
 while True:
-    try:
-        response = requests.get(url)
-        frame_id += 1
-    except requests.exceptions.RequestException as e:
-        print("No Camera or Valid Frame Found")
-        continue
+    _, frame = cap.read()
+    frame_id += 1
 
-    image_array = np.asarray(bytearray(response.content), dtype=np.uint8)
-
-    frame = cv2.imdecode(image_array, cv2.IMREAD_COLOR)
-
-    height, width = frame.shape[:2]
+    height, width, channels = frame.shape
 
     # Detecting objects
     blob = cv2.dnn.blobFromImage(frame, 0.00392, (416, 416), (0, 0, 0), True, crop=False)
@@ -73,6 +61,7 @@ while True:
             scores = detection[5:]
             class_id = np.argmax(scores)
             confidence = scores[class_id]
+            # if confidence > 0.2:
             if confidence > 0.5:
                 # Object detected
                 center_x = int(detection[0] * width)
@@ -88,7 +77,9 @@ while True:
                 confidences.append(float(confidence))
                 class_ids.append(class_id)
 
-    indexes = cv2.dnn.NMSBoxes(boxes, confidences, 0.5, 0.4)
+    # indexes = cv2.dnn.NMSBoxes(boxes, confidences, 0.3, 0.3)
+    indexes = cv2.dnn.NMSBoxes(boxes, confidences, 0.3, 0.3)
+
 
     objects = []
     accuracy = []
@@ -114,4 +105,6 @@ while True:
     key = cv2.waitKey(1)
     if key == 27:
         break
+
+cap.release()
 cv2.destroyAllWindows()
