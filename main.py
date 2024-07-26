@@ -3,6 +3,8 @@ import numpy as np
 import argparse
 import time
 import requests
+import logging
+import sys
 
 cam_url = 'http://192.168.43.231/cam-hi.jpg'
 
@@ -11,11 +13,36 @@ ap.add_argument('-c', '--use_webcam', required=False,
                 help = 'use built-in camera feed')
 ap.add_argument('-o', '--show', required=False,
                 help = 'show output and boxes')
+ap.add_argument('-L', '--logs', required=False,
+                help = 'show logs on terminal')
 args = ap.parse_args()
 
 # net = cv2.dnn.readNet("yolov3-tiny.weights", "yolov3-tiny.cfg")
 
 net = cv2.dnn.readNet('yolov3.weights', 'yolov3.cfg')
+
+class LoggerWriter:
+    def __init__(self, level):
+        self.level = level
+
+    def write(self, message):
+        if message != '\n':
+            self.level(message)
+
+    def flush(self):
+        pass
+
+# Configure the logging
+logging.basicConfig(filename='app.log', level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+
+# Create a logger object
+logger = logging.getLogger()
+
+if not args.logs == 'true':
+    sys.stdout = LoggerWriter(logger.info)
+    sys.stderr = LoggerWriter(logger.error)
+else:
+    logger.disabled = True
 
 classes = []
 
