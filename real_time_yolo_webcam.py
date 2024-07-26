@@ -11,8 +11,6 @@ with open("yolov3.txt", "r") as f:
     classes = [line.strip() for line in f.readlines()]
 layer_names = net.getLayerNames()
 
-# output_layers = [layer_names[i[0] - 1] for i in net.getUnconnectedOutLayers()]
-
 colors = np.random.uniform(0, 255, size=(len(classes), 3))
 
 def get_output_layers(net):
@@ -34,8 +32,6 @@ def Summary(inp):
         vals.append(inp.count(obj))
     return dict(zip(keys, vals))
 
-# Loading image
-# cap = cv2.VideoCapture("uk.mp4")
 
 cap = cv2.VideoCapture(0)
 

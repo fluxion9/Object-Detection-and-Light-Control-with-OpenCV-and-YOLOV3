@@ -1,15 +1,14 @@
 import cv2
 import numpy as np
-import argparse
 import time
+import requests
 
-ap = argparse.ArgumentParser()
-ap.add_argument('-i', '--video', required=True,
-                help = 'path to input video')
-args = ap.parse_args()
+url = 'http://192.168.43.231/cam-hi.jpg'
 
-# Load Yolo
-net = cv2.dnn.readNet("yolov3-tiny.weights", "yolov3-tiny.cfg")
+net = cv2.dnn.readNet("yolov3.weights", "yolov3.cfg")
+
+# net = cv2.dnn.readNet("yolov3-tiny.weights", "yolov3-tiny.cfg")
+
 classes = []
 with open("yolov3.txt", "r") as f:
     classes = [line.strip() for line in f.readlines()]
@@ -36,21 +35,31 @@ def Summary(inp):
         vals.append(inp.count(obj))
     return dict(zip(keys, vals))
 
-cap = cv2.VideoCapture(args.video)
 
 font = cv2.FONT_HERSHEY_PLAIN
-starting_time = time.time()
-frame_id = 0
-while True:
-    _, frame = cap.read()
-    frame_id += 1
 
-    height, width, channels = frame.shape
+starting_time = time.time()
+
+frame_id = 0
+
+while True:
+    try:
+        response = requests.get(url)
+        frame_id += 1
+    except requests.exceptions.RequestException as e:
+        response = None
+
+    image_array = np.asarray(bytearray(response.content), dtype=np.uint8)
+
+    frame = cv2.imdecode(image_array, cv2.IMREAD_COLOR)
+
+    height, width = frame.shape[:2]
 
     # Detecting objects
     blob = cv2.dnn.blobFromImage(frame, 0.00392, (416, 416), (0, 0, 0), True, crop=False)
 
     net.setInput(blob)
+    # outs = net.forward(output_layers)
 
     outs = net.forward(get_output_layers(net))
 
@@ -63,7 +72,7 @@ while True:
             scores = detection[5:]
             class_id = np.argmax(scores)
             confidence = scores[class_id]
-            if confidence > 0.2:
+            if confidence > 0.5:
                 # Object detected
                 center_x = int(detection[0] * width)
                 center_y = int(detection[1] * height)
@@ -78,7 +87,7 @@ while True:
                 confidences.append(float(confidence))
                 class_ids.append(class_id)
 
-    indexes = cv2.dnn.NMSBoxes(boxes, confidences, 0.4, 0.3)
+    indexes = cv2.dnn.NMSBoxes(boxes, confidences, 0.5, 0.4)
 
     objects = []
     accuracy = []
@@ -96,6 +105,7 @@ while True:
     
     print(Summary(objects))
 
+
     elapsed_time = time.time() - starting_time
     fps = frame_id / elapsed_time
     cv2.putText(frame, "FPS: " + str(round(fps, 2)), (10, 50), font, 2, (0, 0, 0), 3)
@@ -103,6 +113,4 @@ while True:
     key = cv2.waitKey(1)
     if key == 27:
         break
-
-cap.release()
 cv2.destroyAllWindows()
