@@ -6,7 +6,7 @@ import requests
 import logging
 import sys
 
-cam_url = 'http://192.168.43.231/cam-hi.jpg'
+cam_url = 'http://192.168.4.1/capture'
 
 ap = argparse.ArgumentParser()
 ap.add_argument('-c', '--use_webcam', required=False,
@@ -80,6 +80,15 @@ def Summary(inp):
         keys.append(obj)
         vals.append(inp.count(obj))
     return dict(zip(keys, vals))
+
+def handle_output(summaries):
+    if summaries.__contains__('person'):
+        try:
+            res = requests.get("http://192.168.4.1/person")
+        except requests.exceptions.RequestException as e:
+            pass
+    else:
+        pass
 
 if args.use_webcam == 'true':
     src, option = cv2.VideoCapture(0), True
@@ -163,7 +172,11 @@ while True:
             draw_prediction(frame, class_ids[i], confidences[i], round(x), round(y), round(x+w), round(y+h))
     
     
-    print(Summary(objects))
+    summary = Summary(objects)
+
+    print(summary)
+
+    handle_output(summary)
 
     elapsed_time = time.time() - starting_time
     fps = frame_id / elapsed_time
