@@ -4,7 +4,7 @@ import argparse
 import time
 
 ap = argparse.ArgumentParser()
-ap.add_argument('-i', '--video', required=True,
+ap.add_argument('-v', '--video', required=True,
                 help = 'path to input video')
 args = ap.parse_args()
 

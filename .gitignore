@@ -1,3 +1,2 @@
-yolov3.weights
-yolov3-tiny.weights
 *.log
+*.weights
