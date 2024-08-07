@@ -90,6 +90,18 @@ def handle_output(summaries):
     else:
         pass
 
+def handle_darkness(lvalue):
+    if lvalue < 13.0:
+        try:
+            res = requests.get("http://192.168.4.1/dark=1")
+        except requests.exceptions.RequestException as e:
+            pass
+    else:
+        try:
+            res = requests.get("http://192.168.4.1/dark=0")
+        except requests.exceptions.RequestException as e:
+            pass
+
 if args.use_webcam == 'true':
     src, option = cv2.VideoCapture(0), True
 else:
@@ -110,10 +122,15 @@ while True:
             frame_id += 1
             image_array = np.asarray(bytearray(response.content), dtype=np.uint8)
             frame = cv2.imdecode(image_array, cv2.IMREAD_COLOR)
-            height, width = frame.shape[:2]
+            height, width, channels = frame.shape
         except requests.exceptions.RequestException as e:
             print("No Camera or Valid Frame Found")
             continue
+    
+    # measuring brightness
+    hsl = cv2.cvtColor(frame, cv2.COLOR_BGR2HLS)
+    Lchanneld = hsl[:, :, 1]
+    lvalueld = cv2.mean(Lchanneld)[0]
 
     # Detecting objects
     blob = cv2.dnn.blobFromImage(frame, 0.00392, (416, 416), (0, 0, 0), True, crop=False)
@@ -175,13 +192,15 @@ while True:
     summary = Summary(objects)
 
     print(summary)
-
+    
+    handle_darkness(lvalueld)
     handle_output(summary)
 
     elapsed_time = time.time() - starting_time
     fps = frame_id / elapsed_time
     if args.show == 'true':
-        cv2.putText(frame, "FPS: " + str(round(fps, 2)), (10, 50), font, 2, (0, 0, 0), 3)
+        cv2.putText(frame, "FPS: " + str(round(fps, 2)), (10, 50), font, 2, (255, 0, 0), 3)
+        cv2.putText(frame, f'L value: {lvalueld:.2f}', (10, 450), font, 1, (0, 255, 0), 2, cv2.LINE_AA)
         cv2.imshow("Feed", frame)
         key = cv2.waitKey(1)
         if key == 27:
