@@ -5,12 +5,12 @@ import requests
 
 url = 'http://192.168.43.231/cam-hi.jpg'
 
-net = cv2.dnn.readNet("yolov3.weights", "yolov3.cfg")
+net = cv2.dnn.readNet("yolov4-tiny.weights", "yolov4-tiny.cfg")
 
 # net = cv2.dnn.readNet("yolov3-tiny.weights", "yolov3-tiny.cfg")
 
 classes = []
-with open("yolov3.txt", "r") as f:
+with open("coco.txt", "r") as f:
     classes = [line.strip() for line in f.readlines()]
 layer_names = net.getLayerNames()
 
@@ -54,7 +54,7 @@ while True:
 
     frame = cv2.imdecode(image_array, cv2.IMREAD_COLOR)
 
-    height, width = frame.shape[:2]
+    height, width, channels = frame.shape
 
     # Detecting objects
     blob = cv2.dnn.blobFromImage(frame, 0.00392, (416, 416), (0, 0, 0), True, crop=False)
@@ -73,7 +73,7 @@ while True:
             scores = detection[5:]
             class_id = np.argmax(scores)
             confidence = scores[class_id]
-            if confidence > 0.5:
+            if confidence > 0.1:
                 # Object detected
                 center_x = int(detection[0] * width)
                 center_y = int(detection[1] * height)
@@ -88,7 +88,7 @@ while True:
                 confidences.append(float(confidence))
                 class_ids.append(class_id)
 
-    indexes = cv2.dnn.NMSBoxes(boxes, confidences, 0.5, 0.4)
+    indexes = cv2.dnn.NMSBoxes(boxes, confidences, 0.1, 0.5)
 
     objects = []
     accuracy = []
@@ -109,7 +109,7 @@ while True:
 
     elapsed_time = time.time() - starting_time
     fps = frame_id / elapsed_time
-    cv2.putText(frame, "FPS: " + str(round(fps, 2)), (10, 50), font, 2, (0, 0, 0), 3)
+    cv2.putText(frame, "FPS: " + str(round(fps, 2)), (10, 50), font, 2, (0, 255, 0), 3)
     cv2.imshow("Image", frame)
     key = cv2.waitKey(1)
     if key == 27:

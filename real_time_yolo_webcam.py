@@ -4,10 +4,10 @@ import time
 
 # net = cv2.dnn.readNet("yolov3-tiny.weights", "yolov3-tiny.cfg")
 
-net = cv2.dnn.readNet('yolov4.weights', 'yolov4.cfg')
+net = cv2.dnn.readNet('yolov4-tiny.weights', 'yolov4-tiny.cfg')
 
 classes = []
-with open("yolov3.txt", "r") as f:
+with open("coco.txt", "r") as f:
     classes = [line.strip() for line in f.readlines()]
 layer_names = net.getLayerNames()
 
@@ -62,7 +62,7 @@ while True:
             class_id = np.argmax(scores)
             confidence = scores[class_id]
             # if confidence > 0.2:
-            if confidence > 0.5:
+            if confidence > 0.1:
                 # Object detected
                 center_x = int(detection[0] * width)
                 center_y = int(detection[1] * height)
@@ -77,8 +77,7 @@ while True:
                 confidences.append(float(confidence))
                 class_ids.append(class_id)
 
-    # indexes = cv2.dnn.NMSBoxes(boxes, confidences, 0.3, 0.3)
-    indexes = cv2.dnn.NMSBoxes(boxes, confidences, 0.3, 0.3)
+    indexes = cv2.dnn.NMSBoxes(boxes, confidences, 0.1, 0.5)
 
 
     objects = []
@@ -100,7 +99,7 @@ while True:
 
     elapsed_time = time.time() - starting_time
     fps = frame_id / elapsed_time
-    cv2.putText(frame, "FPS: " + str(round(fps, 2)), (10, 50), font, 2, (0, 0, 0), 3)
+    cv2.putText(frame, "FPS: " + str(round(fps, 2)), (10, 50), font, 2, (0, 255, 0), 3)
     cv2.imshow("Image", frame)
     key = cv2.waitKey(1)
     if key == 27:

@@ -9,12 +9,12 @@ args = ap.parse_args()
 
 classes = None
 
-with open('yolov3.txt', 'r') as f:
+with open('coco.txt', 'r') as f:
     classes = [line.strip() for line in f.readlines()]
 
 COLORS = np.random.uniform(0, 255, size=(len(classes), 3))
 
-net = cv2.dnn.readNet('yolov4.weights', 'yolov4.cfg')
+net = cv2.dnn.readNet('yolov4-tiny.weights', 'yolov4-tiny.cfg')
 
 # net = cv2.dnn.readNet('yolov3-tiny.weights', 'yolov3-tiny.cfg')
 
@@ -107,12 +107,12 @@ for i in indices:
 # print(objects)
 # print(accuracy)
 
-# cv2.imshow("object detection", image)
-# cv2.waitKey()
-cv2.imwrite("output.jpg", image)
-# cv2.destroyAllWindows()
-
+cv2.imshow("object detection", image)
 summary = Summary(objects)
 print(summary)
+cv2.waitKey()
+cv2.imwrite("output.jpg", image)
+cv2.destroyAllWindows()
+
 
 
