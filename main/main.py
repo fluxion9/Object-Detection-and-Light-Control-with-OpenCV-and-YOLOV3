@@ -48,6 +48,7 @@ classes = []
 
 with open("coco.txt", "r") as f:
     classes = [line.strip() for line in f.readlines()]
+
 layer_names = net.getLayerNames()
 
 colors = np.random.uniform(0, 255, size=(len(classes), 3))
