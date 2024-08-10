@@ -85,7 +85,7 @@ def Summary(inp):
 def handle_output(summaries):
     if summaries.__contains__('person'):
         try:
-            res = requests.get("http://192.168.4.1/person")
+            res = requests.get("http://192.168.4.1/person", timeout=2)
         except requests.exceptions.RequestException as e:
             pass
     else:
@@ -94,12 +94,12 @@ def handle_output(summaries):
 def handle_darkness(lvalue):
     if lvalue < 13.0:
         try:
-            res = requests.get("http://192.168.4.1/dark=1")
+            res = requests.get("http://192.168.4.1/dark=1", timeout=0.5)
         except requests.exceptions.RequestException as e:
             pass
     else:
         try:
-            res = requests.get("http://192.168.4.1/dark=0")
+            res = requests.get("http://192.168.4.1/dark=0", timeout=0.5)
         except requests.exceptions.RequestException as e:
             pass
 
@@ -193,9 +193,8 @@ while True:
 
     print(summary)
     
-    if args.use_webcam != 'true':
-        handle_darkness(lvalueld)
-        handle_output(summary)
+    handle_darkness(lvalueld)
+    handle_output(summary)
 
     elapsed_time = time.time() - starting_time
     fps = frame_id / elapsed_time
