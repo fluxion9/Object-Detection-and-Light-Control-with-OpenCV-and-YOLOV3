@@ -65,15 +65,15 @@ outs = net.forward(get_output_layers(net))
 class_ids = []
 confidences = []
 boxes = []
-conf_threshold = 0.5
-nms_threshold = 0.4
+conf_threshold = 0.2
+nms_threshold = 0.65
 
 for out in outs:
     for detection in out:
         scores = detection[5:]
         class_id = np.argmax(scores)
         confidence = scores[class_id]
-        if confidence > 0.5:
+        if confidence > 0.1:
             center_x = int(detection[0] * Width)
             center_y = int(detection[1] * Height)
             w = int(detection[2] * Width)
@@ -107,11 +107,11 @@ for i in indices:
 # print(objects)
 # print(accuracy)
 
-cv2.imshow("object detection", image)
+# cv2.imshow("object detection", image)
 summary = Summary(objects)
 print(summary)
-cv2.waitKey()
-cv2.imwrite("output.jpg", image)
+# cv2.waitKey()
+cv2.imwrite("object-detection.jpg", image)
 cv2.destroyAllWindows()
 
 
