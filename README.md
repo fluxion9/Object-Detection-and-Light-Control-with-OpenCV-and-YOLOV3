@@ -37,7 +37,7 @@ When it comes to object detection, popular detection frameworks are
  ## YOLOV4
 
 ### Weights
-YOLOV4-tiny weights [link](yolov4-tiny.weights) has already been included in this repository and used in the codes. So you don't have to download the weights.
+YOLOV4-tiny [weights](yolov4-tiny.weights) has already been included in this repository and used in the codes. So you don't have to download the weights.
 
 
 
