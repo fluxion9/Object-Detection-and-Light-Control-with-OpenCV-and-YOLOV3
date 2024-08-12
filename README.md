@@ -75,12 +75,12 @@ Provided all the files are in the current directory, below command will apply ob
 
  `python3 main.py -o true` - Run main code using ESP32 camera as source and show output feed with detection.
 
- `python3 main,py -c true -o true` - Run main code using web camera as source and show output feed with detection.
+ `python3 main.py -c true -o true` - Run main code using web camera as source and show output feed with detection.
 
  In each case of the above commands, the computer used to run the program must be connect to the ESP32 camera's local WiFi hotspot whose parameters are:
 
- **SSID - `YOLO32-CAM`**
- **PSWD - `YOLOV3-2024**
+ ### **SSID - `YOLO32-CAM`**
+ ### **PSWD - `YOLOV3-2024**
 
 
 

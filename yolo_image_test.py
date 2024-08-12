@@ -111,6 +111,7 @@ for i in indices:
 summary = Summary(objects)
 print(summary)
 # cv2.waitKey()
+# cv2.imwrite("object-detection.jpg", image)
 cv2.imwrite("output.jpg", image)
 cv2.destroyAllWindows()
 
