@@ -3,12 +3,13 @@
 #include <WiFiClient.h>
 #include <esp32cam.h>
 
-#define interval 30
 
 #define A1 14
 #define A5 15
 
 #define PIR 13
+
+#define defaultInterval 10
 
 const char* ssid = "YOLO32-CAM";
 const char* pswd = "YOLOV3-2024";
@@ -21,6 +22,8 @@ static auto midRes = esp32cam::Resolution::find(350, 530);
 static auto hiRes = esp32cam::Resolution::find(800, 600);
 
 unsigned long diff = 0, lastMillis = 0;
+
+unsigned int interval = defaultInterval;
 
 bool dark = false;
 
@@ -70,6 +73,16 @@ void setup() {
 
   server.on("/dark=0", HTTP_GET, [](AsyncWebServerRequest* request) {
     dark = false;
+    request->send(200);
+  });
+
+  server.on("/set-period", HTTP_GET, [](AsyncWebServerRequest* request) {
+    String inp = request->getParam(0)->value();
+    interval = inp.toInt();
+    request->send(200);
+  });
+
+  server.on("/ping", HTTP_GET, [](AsyncWebServerRequest* request) {
     request->send(200);
   });
 

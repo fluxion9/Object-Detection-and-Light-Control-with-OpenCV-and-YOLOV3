@@ -15,6 +15,8 @@ ap.add_argument('-o', '--show', required=False,
                 help = 'show output and boxes')
 ap.add_argument('-L', '--logs', required=False,
                 help = 'show logs on terminal')
+ap.add_argument('-P', '--period', required=False,
+                help = 'set light-out time period to the number of seconds provided')
 args = ap.parse_args()
 
 # net = cv2.dnn.readNet("yolov3-tiny.weights", "yolov3-tiny.cfg")
@@ -105,8 +107,42 @@ def handle_darkness(lvalue):
 
 if args.use_webcam == 'true':
     src, option = cv2.VideoCapture(0), True
+    while True:
+        try:
+            res = requests.get("http://192.168.4.1/ping", timeout=0.5)
+        except requests.exceptions.RequestException as e:
+            print("ESP32 CAM Connection Error")
+            continue
+        if res.status_code != 200:
+            print("ESP32 CAM Connection Error")
+            continue
+        else:
+            break
 else:
     src, option = cam_url, False
+    while True:
+        try:
+            res = requests.get("http://192.168.4.1/ping", timeout=0.5)
+        except requests.exceptions.RequestException as e:
+            print("ESP32 CAM Connection Error")
+            continue
+        if res.status_code != 200:
+            print("ESP32 CAM Connection Error")
+            continue
+        else:
+            break
+
+if args.period != None:
+    while True:
+        try:
+            res = requests.get("192.168.4.1/set-period?val={}".format(args.period), timeout=1)
+        except requests.exceptions.RequestException as e:
+            print("Exiting due to request exception")
+            exit()
+        if res.status_code == 200:
+            break
+        else:
+            continue
 
 font = cv2.FONT_HERSHEY_PLAIN
 starting_time = time.time()
@@ -119,12 +155,12 @@ while True:
         height, width, channels = frame.shape
     else:
         try:
-            response = requests.get(src)
+            response = requests.get(src, timeout=0.5)
             frame_id += 1
             image_array = np.asarray(bytearray(response.content), dtype=np.uint8)
             frame = cv2.imdecode(image_array, cv2.IMREAD_COLOR)
             height, width, channels = frame.shape
-        except requests.exceptions.RequestException as e:
+        except Exception as e:
             print("No Camera or Valid Frame Found")
             continue
     
