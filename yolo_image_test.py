@@ -14,7 +14,9 @@ with open('coco.txt', 'r') as f:
 
 COLORS = np.random.uniform(0, 255, size=(len(classes), 3))
 
-net = cv2.dnn.readNet('yolov4-tiny.weights', 'yolov4-tiny.cfg')
+# print(COLORS)
+
+net = cv2.dnn.readNet('yolov4.weights', 'yolov4.cfg')
 
 # net = cv2.dnn.readNet('yolov3-tiny.weights', 'yolov3-tiny.cfg')
 
@@ -35,9 +37,9 @@ def draw_prediction(img, class_id, confidence, x, y, x_plus_w, y_plus_h):
 
     color = COLORS[class_id]
 
-    cv2.rectangle(img, (x,y), (x_plus_w,y_plus_h), color, 2)
+    cv2.rectangle(img, (x,y), (x_plus_w,y_plus_h), color, 6)
 
-    cv2.putText(img, label, (x-10,y-10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
+    cv2.putText(img, label, (x-10,y-10), cv2.FONT_HERSHEY_SIMPLEX, 1, color, 2)
 
 
 def Summary(inp):

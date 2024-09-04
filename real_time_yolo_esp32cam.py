@@ -3,7 +3,7 @@ import numpy as np
 import time
 import requests
 
-url = 'http://192.168.43.231/cam-hi.jpg'
+url = 'http://192.168.4.1/capture'
 
 net = cv2.dnn.readNet("yolov4-tiny.weights", "yolov4-tiny.cfg")
 
@@ -55,6 +55,8 @@ while True:
     frame = cv2.imdecode(image_array, cv2.IMREAD_COLOR)
 
     height, width, channels = frame.shape
+    
+    print(frame.shape)
 
     # Detecting objects
     blob = cv2.dnn.blobFromImage(frame, 0.00392, (416, 416), (0, 0, 0), True, crop=False)
